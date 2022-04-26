@@ -1,0 +1,217 @@
+\documentclass[11pt]{article}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\pagestyle{empty}
+\usepackage{amsmath}
+\usepackage{minted}
+\usepackage[albanian]{babel}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{setspace}
+\onehalfspacing
+
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+
+
+
+\lstset{frame=tb,
+  language=C++,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+   numbers=left,   
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+
+
+
+\usepackage{titlesec}
+\usepackage{titling}
+
+
+\titleformat{\section}
+{\Large}
+{\hspace{0.2in}}
+{1em}
+{}
+
+
+
+\begin{document}
+\begin{center}
+\line(1,0){423}\\
+[0.25in]
+    \huge{\bfseries\textsc{Arkitetura e Kompjuterëve}}\\
+[2mm]
+\line(1,0){300}\\
+[1.5cm]
+\end{center}
+\begin{center}
+\includegraphics[scale=0.16]{up.png}
+\end{center}
+\vspace{2cm}
+\begin{center}
+\textsc{{\bfseries\LARGE Detyra 1}}\\
+%[2 cm]
+%\textsc{{\large Valon Raca}}\\
+\vspace{2.3cm}
+\end{center}
+
+\begin{flushright}
+\line(1,0){100pt}\\
+[0.3cm]
+\textsc{Osman Bytyqi}\\
+\# 190714100081\\
+April 2022\\
+\line(1,0){65pt}\\
+\end{flushright}
+\newpage
+
+\section{Kodi në gjuhën C++}
+
+Kodi në vazhdim  paraqet një funksion i cili si vlere pranon parametrin  test ku është hardcoduar me vleren 4, më pas funksioni  do të shtyp  të gjithë numrat me rënditje prej 4 deri në 1 dhe  prej 1 deri ne 4.\\
+
+Kusht i nevojshëm  që ky funksion të vazhdoj  me ekzekutim është qe vlera e variables  test apo parametrit  ne këtë rast te jetë më e madhe se 1 përndryshe programi do të ndaloj ekzekutuari, ku këtë kusht e kemi arritur përmes nje if bloku duke e kontrolluar që test variabla të jetë më e madhe se $1$, dhe në fund e kemi thirrur në funksionin main.
+\vspace{2cm}
+\begin{lstlisting}
+
+#include<iostream>
+using namespace std;
+void printFun(int test){
+    if (test<1){
+        return  ;
+    }
+    else {
+        cout<<test<<" ";
+        printFun(test-1);
+        cout<<test<<" ";
+        return ;
+    }
+}
+int main(){
+    int test=4;
+    printFun(test);
+}
+
+
+\end{lstlisting}
+\newpage
+\section{Realizimi i Kodit në Mips}
+\begin{minted}{gas}
+.text
+.globl main
+
+main:
+addi $s0,$zero,4
+add $a0,$s0,$zero      # vendosja e vleres se regjistrit s0 ne argument
+jal printFun           #thirrja  e funkstionit
+printFun:
+addi $sp,$sp,-8        # rezervimi i hapsires ne stack 
+sw $ra,4($sp)          # rezervimi i vleres return ne stack
+sw $s0,0($sp)          # rezervimi i vleres se parametrit ne stack
+slti $t0,$s0,1         #test for n<1
+beq $t0,$zero,else     #if test>=1 go to else 
+beq $t0,1 else2
+addi $sp,$sp,8         #lirimi i hapsires se stackut 
+
+printfun2:
+addi $sp,$sp,-8        # rezervimi i hapsires ne stack 
+sw $ra,4($sp)          # rezervimi i vleres return ne stack
+sw $s0,0($sp)          # rezervimi i vleres se parametrit ne stack
+slti $t0,$s0,4         #test for n<1
+beq $t0,1 else2
+addi $sp,$sp,8         #lirimi i hapsires se stackut 
+li $v0,10
+syscall
+
+else:
+li $v0,1               # print test 
+move $a0,$s0
+syscall
+
+li $v0,4               #print space
+la $a0,space           #load address of space
+syscall
+
+addi $s0,$s0,-1        #t-1
+sw $s0,0($sp)          #ruajta ne stack 
+j printFun             #kcimi ne printfun
+addi $sp,$sp,8         #zbrasja e stackut
+
+li $v0,1               # print test 
+move $a0,$a0
+syscall
+
+li $v0,4              #print space
+la $a0,space          #load address of space
+syscall
+addi $v0,$zero,0       #return 
+jr $ra
+
+else2:
+addi $s0,$s0,1
+li $v0,1               # print test 
+move $a0,$s0
+syscall
+
+li $v0,4               #print space
+la $a0,space           #load address of space
+syscall
+
+sw $s0,0($sp)          #ruajta ne stack 
+j printfun2             #kcimi ne printfun
+addi $sp,$sp,8         #zbrasja e stackut
+
+.data
+space: .asciiz " "
+
+
+      
+\end{minted}
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{test1.png}
+%  \includegraphics[widht=0.01]{test1.png}
+    \caption{Testimi}
+    \label{testimi}
+\end{figure}
+
+\vspace{1cm}
+Përpos implementimit të
+logjikës së menyrës së zbritjes së parametrit
+një pjesë tjetër interesante ka
+qenë puna me stack e cila ka dashur një koncentrim më të madh.
+\vspace{2cm}
+\newpage
+\section{Përfundimi}
+Arkitektura e Kompjuterëve është ndër lëndët e vetme deri tash ku nuk kam pasur aq njohuri
+paraprake, andaj edhe zgjodha opsionin e parë në mënyrë që të hulumtoj më shumë dhe të mësoj
+më mirë.
+
+Përfundimi i detyrës nuk ishte edhe aq i lehtë, mirëpo kjo ndikoi që të përvetësoj ato që janë
+shpjeguar në ligjërata dhe ushtrime dhe t’i kuptoj ato që nuk i kam pasur edhe aq të qarta, çka edhe
+është qëllim i detyrave të tilla.
+Në ndihmë kanë ardhur artikuj të ndryshëm në Google dhe inqizime të llojllojshme në YouTube.
+Me kombinim të të gjitha veglave ndihmëse, zgjidhja e detyrës mori punë disa orëshe brenda disa
+ditëve
+
+
+
+\end{document}
